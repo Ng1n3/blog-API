@@ -12,7 +12,8 @@ app.use(express.json());
 // app.use(cookieParser());
 
 //routes
-app.use('/user',userRoute);
+app.use(userRoute);
+
 
 const PORT = process.env.PORT;
 const MONGO_URL = process.env.MONGO_URL;
@@ -22,4 +23,5 @@ app.listen(PORT, () => {
     `App is listening on localhost://${PORT}\n Ctrl-C to shut server down`
   );
 });
+
 
