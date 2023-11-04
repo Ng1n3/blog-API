@@ -21,5 +21,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
     "mongoose-paginate-v2": "^1.7.4"
+  },
+  "engines": {
+    "node": ">=14.20.1"
   }
 }
