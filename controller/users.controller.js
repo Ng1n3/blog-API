@@ -101,7 +101,7 @@ const home = async (req, res) => {
       return res.status(200).send({
         status: "OK",
         message:
-          "Sorry, there are no blogs available currently, please check back later",
+          "Sorry, there are no blogs available currently, please go to https://simple-note-icoj.onrender.com/signup using postman or any other http clients.",
       });
     } else {
       res.status(200).send(blogCheck);

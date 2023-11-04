@@ -20,7 +20,8 @@
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
-    "mongoose-paginate-v2": "^1.7.4"
+    "mongoose-paginate-v2": "^1.7.4",
+    "winston": "^3.11.0"
   },
   "engines": {
     "node": ">=14.20.1"
