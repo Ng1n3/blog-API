@@ -41,11 +41,13 @@ const loginValidation = async (req, res, next) => {
 };
 
 const checkuser = (req, res, next) => {
+  console.log("PING");
   const tokenheader = req.header("Authorization");
   // console.log(tokenheader);
   if (!tokenheader || !tokenheader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+
   const token = tokenheader.split(" ")[1];
   if (!token) {
     return res.status(401).send({ status: "FAILED", message: "Unauthorized" });

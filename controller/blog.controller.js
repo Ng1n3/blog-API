@@ -172,12 +172,14 @@ const myBlogs = async (req, res) => {
     }
 
     if (author) {
-        const authorUser = await User.findOne({first_name: author});
-        if(authorUser) {
-            query["author"] = author;
-        } else {
-            return res.status(401).send({status: "FAILED", message: "Author not found"})
-        }
+      const authorUser = await User.findOne({ first_name: author });
+      if (authorUser) {
+        query["author"] = author;
+      } else {
+        return res
+          .status(401)
+          .send({ status: "FAILED", message: "Author not found" });
+      }
     }
 
     const blogs = await Blog.paginate(query, options);
@@ -191,4 +193,31 @@ const myBlogs = async (req, res) => {
   }
 };
 
-module.exports = { createBlog, updateBlog, deleteBlog, myBlogs };
+const getOneBlog = async (req, res) => {
+  const { blogId } = req.params;
+  const userId = req.userId;
+
+  try {
+    const blog = await Blog.findById(blogId).populate({
+      path: "author",
+      select: "-_id -email -password",
+    });
+    if (!blog) {
+      return res
+        .status(404)
+        .send({ status: "FAILED", message: "Blog not found" });
+    }
+
+    blog.read_count += 1;
+    await blog.save();
+
+    res.send({ status: "OK", blog });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send({ status: "FAILED", message: "Internal Server Error." });
+  }
+};
+
+module.exports = { createBlog, updateBlog, deleteBlog, myBlogs, getOneBlog };
