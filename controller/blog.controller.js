@@ -119,11 +119,9 @@ const deleteBlog = async (req, res) => {
       !blog.author._id ||
       blog.author._id.toString() !== userId.toString()
     ) {
-      return res
-        .status(403)
-        .json({
-          error: "Unauthorized: Only Owner of blog can delete this blog",
-        });
+      return res.status(403).json({
+        error: "Unauthorized: Only Owner of blog can delete this blog",
+      });
     }
     //delete blog
     await Blog.findByIdAndDelete(blogId);
@@ -138,22 +136,55 @@ const deleteBlog = async (req, res) => {
 
 const myBlogs = async (req, res) => {
   const userId = req.userId;
-  const { page = 1, limit = 20, state } = req.query;
+  const {
+    page = 1,
+    limit = 20,
+    state,
+    tags,
+    sortBy,
+    sortOrder,
+    title,
+    author,
+  } = req.query;
   //   console.log(req.query);
   try {
-    const query = {
-      author: userId,
-      ...Blog(state && { state }), //inlcude state filter if provided
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sort: { [sortBy || "timestamp"]: sortOrder === "desc" ? -1 : 1 },
+      populate: {
+        path: "author",
+        select: "-_id -email -password",
+      },
     };
 
-    //find blog
-    const blogs = await Blog.find(query)
-      .sort({ timestamp: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit, 20));
+    const query = {};
+    if (state) {
+      query["state"] = state;
+    }
 
-    res.send({ blogs });
+    if (title) {
+      query["title"] = { $regex: new RegExp(title, "i") };
+    }
+
+    if (tags) {
+      query["tags"] = { $in: tags.split(",") };
+    }
+
+    if (author) {
+        const authorUser = await User.findOne({first_name: author});
+        if(authorUser) {
+            query["author"] = author;
+        } else {
+            return res.status(401).send({status: "FAILED", message: "Author not found"})
+        }
+    }
+
+    const blogs = await Blog.paginate(query, options);
+
+    res.send({ blogs: blogs.docs });
   } catch (error) {
+    console.error("error: ", error);
     res
       .status(500)
       .send({ status: "FAILED", message: "Internal server error" });

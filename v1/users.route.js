@@ -11,5 +11,5 @@ router.post('/login', middleware.loginValidation,userController.loginUser);
 router.post('/blogs', middleware.checkuser, blogController.createBlog);
 router.patch('/blogs/:blogId', middleware.checkuser, blogController.updateBlog)
 router.delete('/blogs/:blogId', middleware.checkuser, blogController.deleteBlog)
-router.get('/blogs/owner-blogs', middleware.checkuser, blogController.myBlogs)
+router.get('/blogs/myblogs', middleware.checkuser, blogController.myBlogs)
 module.exports = router;

@@ -1,5 +1,6 @@
 // models/Blog.js
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const blogSchema = new mongoose.Schema({
   title: {
@@ -27,6 +28,8 @@ const blogSchema = new mongoose.Schema({
     minlength: [5, "Your body must have a minimum length of 5 characters"],
   },
 });
+
+blogSchema.plugin(mongoosePaginate);
 
 const Blog = mongoose.model("Blog", blogSchema);
 
