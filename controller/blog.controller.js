@@ -1,5 +1,6 @@
 const Blog = require("../models/blog.model");
 const User = require("../models/user.model");
+const logger = require('../logger/index');
 
 const calculateReadingTime = (text) => {
   const wpm = 200;
@@ -14,7 +15,7 @@ const createBlog = async (req, res) => {
   const user = await User.findOne({ _id: userId });
 
   if (!user)
-    return res
+  return res
       .status(404)
       .json({ status: "FAILED", message: "User not found" });
 
@@ -27,6 +28,7 @@ const createBlog = async (req, res) => {
     });
   }
   try {
+    logger.info('[CreateBlog] => Blog creation started')
     const newBlog = await Blog.create({
       title,
       description,
@@ -42,23 +44,26 @@ const createBlog = async (req, res) => {
       "author",
       "-email -_id -password"
     );
-    // const authorName = `${populatedName.author.first_name} ${populatedName.author.last_name}`;
+
     res.status(201).send({
       status: "OK",
       message: "New Blog created",
       newBlog: populatedName.toObject(),
     });
   } catch (error) {
+    logger.error(error.message);
     res.status(400).send({ error: error.message });
   }
 };
 
 const updateBlog = async (req, res) => {
+
   const { title, description, tags, body, state } = req.body;
   const { blogId } = req.params;
   const userId = req.userId; //make sure it is owner of blog
 
   try {
+    logger.info('[UpdateBlog] => Blog update started')
     const blog = await Blog.findById(blogId).populate("author");
     if (!blog)
       return res
@@ -97,7 +102,7 @@ const updateBlog = async (req, res) => {
 
     res.send({ status: "OK", message: "Blog updated", blog: updatedBlog });
   } catch (error) {
-    console.error("error updating", error);
+    logger.error(error.message);
     res
       .status(500)
       .send({ status: "FAILED", message: "internal Server Error" });
@@ -108,6 +113,7 @@ const deleteBlog = async (req, res) => {
   const { blogId } = req.params;
   const userId = req.userId;
   try {
+    logger.info('[DeleteBlog] => Blog Deletetion started')
     const blog = await Blog.findById(blogId);
     if (!blog)
       return res
@@ -128,6 +134,7 @@ const deleteBlog = async (req, res) => {
 
     res.json({ message: "Blog deleted successfully" });
   } catch (error) {
+    logger.error(error.message);
     res
       .status(500)
       .send({ status: "FAILED", message: "Internal Server Error" });

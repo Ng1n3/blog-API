@@ -1,6 +1,7 @@
 const joi = require("joi");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const logger = require('../logger/index')
 const JWT_SECRET = process.env.JWT_SECRET;
 const User = require("../models/user.model");
 
@@ -41,13 +42,11 @@ const loginValidation = async (req, res, next) => {
 };
 
 const checkuser = (req, res, next) => {
-  console.log("PING");
   const tokenheader = req.header("Authorization");
-  // console.log(tokenheader);
+
   if (!tokenheader || !tokenheader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-
   const token = tokenheader.split(" ")[1];
   if (!token) {
     return res.status(401).send({ status: "FAILED", message: "Unauthorized" });
@@ -55,6 +54,7 @@ const checkuser = (req, res, next) => {
   try {
     const decodedToken = jwt.verify(token, JWT_SECRET);
     req.userId = decodedToken.userId;
+    logger.info(`${req.method} ${req.url} - ${req.ip}`);
     next();
   } catch (error) {
     res.status(401).send({ status: "FAILED", message: "INVALID TOKEN" });
